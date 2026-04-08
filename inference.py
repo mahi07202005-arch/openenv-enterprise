@@ -10,6 +10,10 @@ env = OpenEnv()
 class StepRequest(BaseModel):
     action: str = ""
 
+@app.get("/")
+def root():
+    return {"status": "running"}
+
 @app.post("/reset")
 def reset():
     state = env.reset()
@@ -22,15 +26,12 @@ def step(req: StepRequest):
     action = req.action if req.action else "Say Hello"
 
     output = simple_model(action)
+
     state, reward, done, _ = env.step(output)
 
     return {
         "observation": state,
-        "reward": reward,
-        "done": done,
+        "reward": float(reward),
+        "done": bool(done),
         "info": {"output": output}
     }
-
-@app.get("/")
-def root():
-    return {"message": "OpenEnv API running"}
